@@ -1,0 +1,13 @@
+#+TITLE: CS4032 Lab 3
+#+OPTIONS: toc:nil
+
+Please ensure you have [[https://ruby-lang.org][Ruby]] and [[https://bundler.io][Bundler]] installed.
+** Installing Dependencies
+#+BEGIN_SRC bash
+$ ./compile.sh
+#+END_SRC
+** Running
+For example, to run on port 5000:
+#+BEGIN_SRC bash
+$ ./start.sh 5000
+#+END_SRC
