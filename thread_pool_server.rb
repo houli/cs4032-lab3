@@ -61,6 +61,7 @@ class ThreadPoolServer
     else
       puts 'Server shut down unexpectedly'
       puts exception
+      puts exception.backtrace
     end
     @pool.shutdown!
   end
