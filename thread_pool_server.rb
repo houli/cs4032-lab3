@@ -38,7 +38,7 @@ class ThreadPoolServer
 
   def handle_connection(sock)
     # Don't allow more connections if all threads in the pool are busy
-    sock.close unless @pool.idle?
+    sock.close if @pool.spawned == @pool.max
 
     @pool.process(sock) do |client|
       while message = client.gets

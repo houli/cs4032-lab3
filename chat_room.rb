@@ -19,13 +19,13 @@ class ChatRoom
   end
 
   def disconnect_user(socket)
-    @users.delete(socket)
+    remove_user(@users[socket], socket) if @users.include?(socket)
   end
 
   def send_message(message, from_socket)
     user_name = @users[from_socket]
     @users.keys.each do |user|
-      response = "CHAT:#{reference}\nCLIENT_NAME:#{user_name}\nMESSAGE:#{message}\n"
+      response = "CHAT:#{reference}\nCLIENT_NAME:#{user_name}\nMESSAGE:#{message}\n\n"
       user.write(response)
     end
   end

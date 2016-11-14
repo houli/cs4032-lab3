@@ -16,6 +16,7 @@ class ChatServer < ThreadPoolServer
   end
 
   def handle_data(client, message)
+    puts message
     if message.start_with? 'HELO '
       handle_hello(client, message)
     elsif message.start_with? 'KILL_SERVICE'
@@ -61,9 +62,9 @@ class ChatServer < ThreadPoolServer
     user_reference = data(client.gets)
     user_name = data(client.gets)
 
-    room_by_reference(room_reference).remove_user(user_name, client)
     response = "LEFT_CHATROOM:#{room_reference}\nJOIN_ID:#{user_reference}\n"
     client.write(response)
+    room_by_reference(room_reference).remove_user(user_name, client)
   end
 
   def handle_disconnect(client)
@@ -76,17 +77,18 @@ class ChatServer < ThreadPoolServer
   def handle_chat(client, room_reference)
     2.times { client.gets } # Skip over client id and name
     message = data(client.gets)
+    client.gets # Skip over second newline in message
     room_by_reference(room_reference).send_message(message, client)
   end
 
   def room_by_name(room_name)
-    room = @rooms.find { |room| room.name == room_name }
-    if @found_room.nil?
+    found_room = @rooms.find { |room| room.name == room_name }
+    if found_room.nil?
       # Create a new room if it doesn't exist
-      room = ChatRoom.new(room_name, new_room_reference)
-      @rooms << room
+      found_room = ChatRoom.new(room_name, new_room_reference)
+      @rooms << found_room
     end
-    room
+    found_room
   end
 
   def room_by_reference(room_reference)
@@ -94,34 +96,29 @@ class ChatServer < ThreadPoolServer
   end
 
   def user_by_socket(socket)
-    reference = nil
     if @users.include?(socket)
-      reference = @users[socket]
+      return @users[socket]
     else
       reference = new_user_reference
       @users[socket] = reference
+      return reference
     end
-    reference
   end
 
   def new_user_reference
-    old_val = nil
-
     @user_reference_mutex.synchronize do
       old_val = @user_reference
       @user_reference += 1
+      return old_val
     end
-    old_val
   end
 
   def new_room_reference
-    old_val = nil
-
     @room_reference_mutex.synchronize do
       old_val = @room_reference
       @room_reference += 1
+      return old_val
     end
-    old_val
   end
 
   def server_ip
